@@ -1,61 +1,80 @@
 package banking;
 
-
-/** This class initializes Profile with values for first name, last name, and date of both. Compares if two profiles are identical.
- * @author Ishani Mhatre
- */
-
-public class Profile implements Comparable<Profile> {
+public class Profile implements Comparable<Profile>{
     private String fname;
     private String lname;
     private Date dob;
 
+    public static final int SAME_PROFILE = 0;
+
+    /**
+     * Default constructor
+     */
+    public Profile() {
+        // Leave values as null
+    }
+
+    /**
+     * Constructor to access properties of Profile
+     * @param fname
+     * @param lname
+     * @param dob
+     */
     public Profile(String fname, String lname, Date dob) {
         this.fname = fname;
         this.lname = lname;
         this.dob = dob;
     }
 
+    /**
+     * Getter method for first name
+     * @return account holder first name
+     */
+    public String getFirstName() {
+        return fname;
+    }
+
+    /**
+     * Getter method for last name
+     * @return account holder last name
+     */
+    public String getLastName() {
+        return lname;
+    }
+
+    /**
+     * Getter method for date of birth
+     * @return account holder date of birth
+     */
+    public Date getDateOfBirth() {
+        return dob;
+    }
+
+    /**
+     * Implement CompareTo method for comparable interface
+     * @return result of comparison of two Profiles
+     */
     @Override
     public int compareTo(Profile profile) {
-        int lastNameComparison = this.lname.compareToIgnoreCase(profile.lname);
-        if (lastNameComparison != 0) {
-            return lastNameComparison;
-        } else {
-            int firstNameComparison = this.fname.compareToIgnoreCase(profile.fname);
-            if (firstNameComparison != 0) {
-                return firstNameComparison;
-            } else {
-                return this.dob.compareTo(profile.dob);
+        if(profile.lname.equalsIgnoreCase(this.lname)){
+            if(profile.fname.equalsIgnoreCase(this.fname)){
+                if(profile.dob.equals(this.dob)){
+                    return SAME_PROFILE;
+                }
+                else{
+                    return profile.dob.compareTo(this.dob);
+                }
+            }
+            else{
+                return profile.fname.compareTo(this.fname);
             }
         }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+        else{
+            return profile.lname.compareTo(this.lname);
         }
-        if (!(obj instanceof Profile)) {
-            return false;
-        }
-        Profile otherProfile = (Profile) obj;
-        return this.fname.equalsIgnoreCase(otherProfile.fname) &&
-                this.lname.equalsIgnoreCase(otherProfile.lname) &&
-                this.dob.equals(otherProfile.dob);
     }
-
     @Override
-    public String toString() {
-        String formattedDob = dob.toString();  // You can format the Date object as needed
-        return fname + " " + lname + " " + formattedDob;
-    }
-
-    public Object getFirstName() {
-        return this.fname;
-    }
-
-    public Object getLastName() {
-        return this.lname;
+    public String toString(){
+        return this.fname + " " + this.lname + " " + this.dob;
     }
 }
