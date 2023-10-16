@@ -52,7 +52,6 @@ public class AccountDatabase {
         return true;
     }
 
-
     // Remove the given account from the database
     public boolean close(Account account) {
         int index = find(account);
@@ -75,7 +74,21 @@ public class AccountDatabase {
         if (accounts[index].balance < amount) {
             return false; // Insufficient funds
         }
-        accounts[index].balance -= amount;
+        double amountToWithdraw = amount;
+        if(account instanceof MoneyMarket){
+            MoneyMarket mm = ((MoneyMarket) accounts[index]);
+            if(mm.getWithdrawal()>3){
+                amountToWithdraw+=10;
+            }
+            if(mm.balance<amountToWithdraw){
+                return false;
+            }
+            mm.setWithdrawal(mm.getWithdrawal()+1);
+            if((mm.balance - amountToWithdraw) <2000){
+                mm.setLoyal(false);
+            }
+        }
+        accounts[index].balance -= amountToWithdraw;
         return true;
     }
 
@@ -86,57 +99,43 @@ public class AccountDatabase {
             return false;
         }
         accounts[index].balance += amount;
+        if(account instanceof MoneyMarket) {
+            MoneyMarket mm = ((MoneyMarket) accounts[index]);
+            if(mm.balance>=2000){
+                mm.setLoyal(true);
+            }
+        }
         return true;
     }
 
     public boolean printSorted(String[] inputData) {
-        // Create a copy of the accounts array to avoid modifying the original array
-        Account[] sortedAccounts = new Account[numAcct];
-        for (int i = 0; i < numAcct; i++) {
-            sortedAccounts[i] = accounts[i];
-        }
-
         // Sort the accounts using bubble sort
-        bubbleSort(sortedAccounts);
+        bubbleSort(accounts, numAcct);
 
         // Print the sorted accounts
-        for (Account account : sortedAccounts) {
-            System.out.println(account); // You can customize the toString() method for the Account class
+        System.out.println("\n*Accounts sorted by account type and profile.*");
+        for (Account account : accounts) {
+            System.out.println(account.toString());
         }
-        return false;
+        return true;
     }
 
-    // Bubble sort algorithm
-    private void bubbleSort(Account[] accounts) {
-        int n = accounts.length;
-        boolean swapped;
-        do {
-            swapped = false;
-            for (int i = 0; i < n - 1; i++) {
-                int typeComparison = accounts[i].getClass().getSimpleName().compareTo(accounts[i + 1].getClass().getSimpleName());
-
-                // Check if either of the profiles (holder) is null
-                if (accounts[i].holder == null || accounts[i + 1].holder == null) {
-                    // Handle the case where a profile is null (you can define your logic here)
-                } else {
-                    int profileComparison = accounts[i].holder.compareTo(accounts[i + 1].holder);
-                    if (typeComparison > 0 || (typeComparison == 0 && profileComparison > 0)) {
-                        // Swap accounts[i] and accounts[i+1]
-                        Account temp = accounts[i];
-                        accounts[i] = accounts[i + 1];
-                        accounts[i + 1] = temp;
-                        swapped = true;
-                    }
+    // Modified bubble sort algorithm to sort based on compareTo
+    private void bubbleSort(Account[] accounts, int numAcct) {
+        for (int i = 0; i < numAcct - 1; i++) {
+            for (int j = 0; j < numAcct - i - 1; j++) {
+                if (accounts[j].compareTo(accounts[j + 1]) > 0) { // compareTo compares account type and profile
+                    Account temp = accounts[j];
+                    accounts[j] = accounts[j + 1];
+                    accounts[j + 1] = temp;
                 }
             }
-        } while (swapped);
+        }
     }
-
-
 
 
     // Calculate interests and fees
-    public boolean printFeesAndInterests(String[] inputData) {
+    public void printFeesAndInterests() {
         for (int i = 0; i < numAcct; i++) {
             Account account = accounts[i];
             double monthlyInterest = account.monthlyInterest();
@@ -146,12 +145,11 @@ public class AccountDatabase {
             // Print the interest and fee for each account
             System.out.printf("%s - Interest: $%.2f, Monthly Fee: $%.2f%n", accountType, monthlyInterest, monthlyFee);
         }
-        return false;
     }
 
 
     // Apply interests and fees to update balances
-    public boolean printUpdatedBalances(String[] inputData) {
+    public void printUpdatedBalances() {
         for (int i = 0; i < numAcct; i++) {
             Account account = accounts[i];
             double monthlyInterest = account.monthlyInterest();
@@ -166,19 +164,36 @@ public class AccountDatabase {
             // Print the updated balance for each account
             System.out.printf("%s - Updated Balance: $%.2f%n", accountType, updatedBalance);
         }
-        return false;
     }
 
-    public boolean findAccount(String accountType, String firstName, String lastName) {
-        for (int i = 0; i < numAcct; i++) {
-            Account account = accounts[i];
-            if (account.getClass().getSimpleName().equals(accountType)
-                    && account.holder.getFirstName().equals(firstName)
-                    && account.holder.getLastName().equals(lastName)) {
-                return account;
-            }
-        }
-        return null; // Account not found
-    }
+//    / Calculate updated balances and return them in an array
+//    public double[] calculateUpdatedBalances() {
+//        double[] updatedBalances = new double[numAcct];
+//
+//        for (int i = 0; i < numAcct; i++) {
+//            Account account = accounts[i];
+//            double monthlyInterest = account.monthlyInterest();
+//            double monthlyFee = account.monthlyFee();
+//
+//            // Calculate the updated balance based on the interest and fees
+//            double updatedBalance = account.getBalance() + monthlyInterest - monthlyFee;
+//            updatedBalances[i] = updatedBalance;
+//        }
+//
+//        return updatedBalances;
+//    }
+//
+//    // Print the updated balances
+//    public void printUpdatedBalances(double[] updatedBalances) {
+//        for (int i = 0; i < numAcct; i++) {
+//            Account account = accounts[i];
+//            String accountType = account.getClass().getSimpleName(); // Get the account type
+//
+//            // Print the updated balance for each account
+//            System.out.printf("%s - Updated Balance: $%.2f%n", accountType, updatedBalances[i]);
+//        }
+//    }
+
+
 
 }
