@@ -38,6 +38,8 @@ public class Date implements Comparable<Date> {
     public static final int LOWERBOUND = 1; //cannot be negative
     public static final int COUNTOFMONTHSINYEAR = 12; //total months
 
+    public static final int LOWER_BOUND = 0; //nothing negative
+
     private int year;
     private int month;
     private int day;
@@ -89,7 +91,7 @@ public class Date implements Comparable<Date> {
      * @return true if Leap Year and false is not
      */
     private boolean isLeapYear() {
-        return (year % QUADRENNIAL == 0 && year % CENTENNIAL != 0) || (year % QUATERCENTENNIAL == 0);
+        return (year % QUADRENNIAL == LOWER_BOUND && year % CENTENNIAL != LOWER_BOUND) || (year % QUATERCENTENNIAL == LOWER_BOUND);
     }
 
     /**
