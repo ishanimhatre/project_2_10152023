@@ -46,7 +46,7 @@ public class TransactionManager {
                     System.out.println(handleCommandW(inputData));
                     break;
                 case "P":
-                    accountDatabase.printSorted(inputData);
+                    accountDatabase.printSorted();
                     break;
                 case "PI":
                     accountDatabase.printFeesAndInterests();
@@ -86,7 +86,7 @@ public class TransactionManager {
             if (!accountDatabase.contains(account)) {
                 return (profile.toString() + "(" + accountType + ") is not in the database.");
             } else {
-                accountDatabase.deposit(account, amount);
+                accountDatabase.deposit(account);
                 return (profile.toString() + "(" + accountType + ") Deposit - balance updated.");
             }
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class TransactionManager {
     private String handleCommandC(String[] inputData) {
         try {
             if (inputData.length < 5) {
-               return("Missing data for closing an account.");
+                return("Missing data for closing an account.");
             }
             String accountType = inputData[1];
             String firstName = inputData[2];
@@ -264,7 +264,7 @@ public class TransactionManager {
                     if (withdrawalAmount > currentBalance) {
                         return profile.toString() + "(" + accountType + ") Withdraw - insufficient funds.";
                     } else {
-                        accountDatabase.withdraw(account, withdrawalAmount);
+                        accountDatabase.withdraw(account);
                         return profile.toString() + "(" + accountType + ") Withdraw - balance updated.";
                     }
                 } else {
