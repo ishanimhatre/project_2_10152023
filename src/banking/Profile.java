@@ -1,9 +1,5 @@
 package banking;
 
-/**
- * Created Comparable Profile object with first and last name, including date of birth
- * @author Ishani Mhatre
- */
 public class Profile implements Comparable<Profile>{
     private String fname;
     private String lname;
