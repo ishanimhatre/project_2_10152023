@@ -1,10 +1,13 @@
 package banking;
 
+/**
+ * Extends Savinds and defines value for MM account
+ * @author Ishani Mhatre
+ */
 public class MoneyMarket extends Savings{
 
     private int withdrawal; //number of withdrawls
     private static final double INTEREST_RATE = 4.5;
-    protected static final double MIN_BALANCE = 2000.0;
 
     public MoneyMarket(){
 
@@ -36,7 +39,7 @@ public class MoneyMarket extends Savings{
 
     @Override
     public double monthlyFee() {
-        if(balance>=MIN_BALANCE){
+        if(balance>=2000){
             return 0;
         }
         else{
