@@ -2,239 +2,321 @@ package banking;
 
 import java.util.Scanner;
 
-/**
- * User interface class that processes the transactions entered on the terminal and performs all Input/Ouput.
+/** Represents the User Interface
+ * @author Keerthana Talla
  * @author Ishani Mhatre
  */
 
 public class TransactionManager {
-
     private AccountDatabase accountDatabase;
 
+    /**
+     * Default constructor
+     */
     public TransactionManager() {
-        this.accountDatabase = new AccountDatabase();
+        accountDatabase = new AccountDatabase();
     }
 
+    /**
+     * User Interface method -- handles user's input
+     */
     public void run() {
-        System.out.println("Transaction Manager running....");
+        System.out.println("Transaction Manager is running.");
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         String[] inputData = input.split("\\s+");
-        System.out.println();
-
+//        for(int i=0; i<inputData.length; i++){
+//            System.out.println(inputData[i]);
+//        }
         while (!inputData[0].equals("Q")) {
-                switch (inputData[0]) {
-                    case "O":
-                        System.out.println(openAccount(inputData));
-                        break;
-                  case "C":
-                        System.out.println(closeAccount(inputData));
-                        break;
-                   case "R":
-                        System.out.println(accountDatabase.printUpdatedBalances(inputData));
-                        break;
-                   case "D":
-                        System.out.println(deposit(inputData));
-                        break;
-                    case "W":
-                        System.out.println(withdraw(inputData));
-                        break;
-                    case "P":
-                        System.out.println(accountDatabase.printSorted(inputData));
-                        break;
-                    case "F":
-                        System.out.println(accountDatabase.printFeesAndInterests(inputData));
-                        break;
-                    default:
-                        System.out.println("Invalid command!");
-                        break;
-                }
-            input = scanner.nextLine();
-            if (input.isEmpty()) {
-                input = scanner.nextLine();
+            switch (inputData[0]) {
+                case "O":
+                    System.out.println(handleCommandO(inputData));
+                    break;
+                case "C":
+                    System.out.println(handleCommandC(inputData));
+                    break;
+                case "UB":
+                    accountDatabase.printUpdatedBalances();
+                    break;
+                case "D":
+                    System.out.println(handleCommandD(inputData));
+                    break;
+                case "W":
+                    System.out.println(handleCommandW(inputData));
+                    break;
+                case "P":
+                    accountDatabase.printSorted(inputData);
+                    break;
+                case "PI":
+                    accountDatabase.printFeesAndInterests();
+                    break;
+                default:
+                    System.out.println("Invalid command!");
+                    break;
             }
+            input = scanner.nextLine();
+            while(input.isEmpty())
+                input = scanner.nextLine();
             inputData = input.split("\\s+");
         }
         System.out.println("Transaction Manager terminated.");
         scanner.close();
     }
 
-    public String openAccount(String[] inputData) {
-        try {
-
-            if (inputData.length < 6) {
-                return "Missing data for opening an account.";
-            }
-
-            String depositStr = (inputData[5]);
-
-            // Check if the deposit amount is a valid double
-            double initialDeposit;
-            try {
-                initialDeposit = Double.parseDouble(depositStr);
-            } catch (NumberFormatException ex) {
-                return "Not a valid amount.";
-            }
-
-            //Check initial deposit
-            if (initialDeposit <= 0) {
-                return "Initial deposit cannot be 0 or negative.";
-            }
-
-            String accountType = (inputData[1]);
-            String firstName = (inputData[2]);
-            String lastName = (inputData[3]);
-            Date dateOfBirthStr = Date.fromString(inputData[4]);
-            int campusCode;
-            boolean loyalCustomer = false; // Initialize to an invalid value
-
-
-            Scanner scanner = null;
-
-            if (accountType.equals("C") || accountType.equals("CC") || accountType.equals("S") || accountType.equals("MM")) {
-                if (accountType.equals("CC")) {
-                    campusCode = Integer.parseInt(inputData[6]);
-                        if (campusCode < 0 || campusCode > 2) {
-                            System.out.println("Invalid campus code.");
-                        }
-                        if (!dateOfBirthStr.isAbove24()) {
-                            System.out.println("DOB invalid: " + dateOfBirthStr + " over 24");
-                        }
-                } else if (accountType.equals("S")) {
-                    int loyalCustomerInput = Integer.parseInt(inputData[6]);
-                    loyalCustomer = (loyalCustomerInput == 1); // Set loyalCustomer to true if input is 1
-                } else if (accountType.equals("MM")) {
-                    if(initialDeposit < 2000) {
-                        System.out.println("Minimum of $2000 to open a Money Market account.");
-                    }
-                }
-
-
-
-                // Check if the date of birth is valid
-                if (!dateOfBirthStr.withinBounds()) { //must check if date isvalid
-                    System.out.println("DOB invalid: " + dateOfBirthStr + " not a valid calendar date!");
-                }
-                if (!dateOfBirthStr.isPresentorFutureDate()) {
-                    System.out.println("DOB invalid: " + dateOfBirthStr + " cannot be today or a future day.");
-                }
-                if (!dateOfBirthStr.isAtLeast16YearsOld()) {
-                    System.out.println("DOB invalid: " + dateOfBirthStr + " under 16");
-                }
-
-
-                // Check if the account already exists in the database
-                Account account = new Account() {
-                    @Override
-                    public double monthlyInterest() {
-                        return 0;
-                    }
-
-                    @Override
-                    public double monthlyFee() {
-                        return 0;
-                    }
-                };
-
-                if (accountDatabase.contains(account)) {
-                    return firstName + " " + lastName + " " + dateOfBirthStr + "(" + accountType + ") is already in the database.";
-                }
-
-                // If all checks pass, add the account to the database
-                accountDatabase.open(account);
-                return firstName + " " + lastName + " " + dateOfBirthStr + "(" + accountType + ") opened.";
-            } else {
-            }
-        } catch (Exception e) {
-            return e.toString();
+    private String handleCommandD(String[] inputData) {
+        if (inputData.length < 4) {
+            return ("Invalid input format. Expected: D <AccountType> <Name> <DateOfBirth> <Amount>");
         }
-        return null;
-    }
 
-
-    public boolean closeAccount(String[] inputData) {
         try {
-            if (inputData.length < 4) {
-                System.out.println("Missing data for closing an account.");
-                return false;
-            }
-
             String accountType = inputData[1];
             String firstName = inputData[2];
             String lastName = inputData[3];
-            String balance = inputData[4];
+            Date dob = Date.fromString(inputData[4]);
+            Profile profile = new Profile(inputData[2], inputData[3], dob);
+            double amount = Double.parseDouble(inputData[5]);
 
-            // Find the account in the database
-            Account account = accountDatabase.findAccount(accountType, firstName, lastName);
-
-            if (account == null) {
-                System.out.println(firstName + " " + lastName + " (" + accountType + ") not found in the database.");
-                return false;
+            if (amount <= 0) {
+                return ("Deposit - amount cannot be 0 or negative.\n");
             }
 
-            // Close the account
-            accountDatabase.close(account);
-            System.out.println(firstName + " " + lastName + " (" + accountType + ") closed.");
-            return true;
+            Account account = createDummyAccount(accountType, profile);
+            // Validate the account holder's information (you may need to implement your own logic for this)
+            if (!accountDatabase.contains(account)) {
+                return (profile.toString() + "(" + accountType + ") is not in the database.");
+            } else {
+                accountDatabase.deposit(account, amount);
+                return (profile.toString() + "(" + accountType + ")" + "Deposit - balance updated.");
+            }
         } catch (Exception e) {
-            System.out.println(e.toString());
-            return false;
+            return "Not valid format.";
         }
     }
 
-
-    public boolean deposit(String[] inputData) {
-        if (inputData.length < 4) {
-            System.out.println("Invalid input format. Expected: D <AccountType> <Name> <DateOfBirth> <Amount>");
-            return false;
-        }
-
-        String accountType = inputData[1];
-        String name = inputData[2];
-        String dateOfBirth = inputData[3];
-        double amount = 0.0;
-
+    private String handleCommandC(String[] inputData) {
         try {
-            amount = Double.parseDouble(inputData[4]);
-        } catch (NumberFormatException e) {
-            System.out.println("Deposit - amount cannot be 0 or negative.\n");
-            return false;
-        }
+            if (inputData.length < 5) {
+               return("Missing data for closing an account.");
+            }
+            String accountType = inputData[1];
+            String firstName = inputData[2];
+            String lastName = inputData[3];
+            Date dob = Date.fromString(inputData[4]);
 
-        // Validate the amount
-        if (amount <= 0) {
-            System.out.println("Deposit - amount cannot be 0 or negative.\n");
-            return false;
-        }
+            if (!dob.isValid()) {return "DOB invalid: " + dob + " not a valid calendar date!";}
+            if (!dob.isPresentorFutureDate()) { return "DOB invalid: " + dob + " cannot be today or a future day.";}
+            if (dob.getAge() < 16) {return "DOB invalid: " + dob + " under 16.";}
+            Profile profile = new Profile(inputData[2], inputData[3], dob);
+            // Find the account in the database
+            Account account = createDummyAccount(accountType, profile);
 
-        Account account = null;
-        // Validate the account holder's information (you may need to implement your own logic for this)
-        if (!accountDatabase.findAccount(accountType, name, dateOfBirth)) {
-            System.out.println(name + dateOfBirth + "(" + accountType + ")" + "is not in the database." );
-            return false;
-        }
-
-        // Deposit the money into the account (you need to implement your own logic for this)
-        boolean depositSuccess = accountDatabase.deposit(account, amount);
-
-        if (depositSuccess) {
-            System.out.println(name + dateOfBirth + "(" + accountType + ")" + "Deposit - balance updated.");
-            return true;
-        } else {
-            System.out.println("Deposit failed. Please check the account information.");
-            return false;
+            if (accountDatabase.contains(account)) {
+                accountDatabase.close(account);
+                return profile.toString() + " (" + accountType + ") has been closed.";
+            } else
+                return profile.toString() + " (" + accountType + ") not in the database.";
+        } catch (Exception e) {
+            return (e.toString());
         }
     }
 
 
 
-    public boolean withdraw(String[] inputData) {
+    /**
+     *
+     * @param inputData String array with each cell having an input value
+     * @return String with error message if input is incorrect, otherwise returns empty string
+     */
+    public String inputCheckForO(String[] inputData) {
+        try {
+            if ((inputData[1].equals("CC") || inputData[1].equals("S")) && inputData.length < 7) { //CollegeChecking and Savings requires 7 pieces of information
+                return "Missing Data for opening an account.";
+            } else if (inputData.length < 6) {
+                return "Missing Data for opening an account."; //other accounts require 6 pieces of information
+            } else {
+                String accountType = inputData[1];
+                String firstName = inputData[2];
+                String lastName = inputData[3];
+                Date date = Date.fromString(inputData[4]);
+                double balance = Double.parseDouble(inputData[5]); //check if 0 or negative
+                if (balance <= 0) {
+                    return "Initial deposit cannot be 0 or negative.";
+                }
+                if (!date.isValid()) {
+                    return "DOB invalid: " + date + " not a valid calendar date!";
+                }
+                if (!date.isPresentorFutureDate()) {
+                    return "DOB invalid: " + date + " cannot be today or a future day.";
+                }
+                if (date.getAge() < 16) {
+                    return "DOB invalid: " + date + " under 16.";
+                }
+                if (accountType.equals("CC") && (Integer.parseInt(inputData[6])<0 || Integer.parseInt(inputData[6])>2)) {
+                    return "Invalid campus code.";
+                }
+                if (accountType.equals("S") && (Integer.parseInt(inputData[6]) < 0 || Integer.parseInt(inputData[6]) > 1)) {
+                    return "Invalid loyalty code.";
+                }
+                return "";
+            }
+        }
+        catch(NumberFormatException e){
+            return "Not Valid Format.";
+        }
     }
 
 
 
-    public static void main(String[] args) {
-        TransactionManager manager = new TransactionManager();
-        manager.run();
+    public String openCheckingAccount(Profile profile, double balance){
+        Checking checkingAcc = new Checking(profile, balance);
+        if(accountDatabase.open(checkingAcc)){
+            return profile.toString() + "(C) opened.";
+        }
+        else{
+            return profile.toString() + "(C) is already in the database.";
+        }
     }
+
+    public String openCCAccount(Profile profile, double balance, int campusCode, Date dob){
+        if(dob.getAge()<24) {
+            Campus campus = Campus.fromCode(campusCode);
+            CollegeChecking ccAccount = new CollegeChecking(profile, balance, campus);
+            if (accountDatabase.open(ccAccount)) {
+                return profile.toString() + "(CC) opened.";
+            } else {
+                return profile.toString() + "(CC) is already in the database."; //already is a c acc and ur trynna make a cc
+            }
+        }
+        else{
+            System.out.print(dob.getAge());
+            return "DOB invalid: " + dob + " over 24.";
+        }
+    }
+    public String openSavingsAccount(Profile profile, double balance, int loyaltyCode){
+        boolean loyalty; //try catch here
+        if(loyaltyCode == 1){
+            loyalty = true;
+        }
+        else {
+            loyalty = false;
+        }
+        Savings savingsAcc = new Savings(profile, balance, loyalty);
+        if(accountDatabase.open(savingsAcc)){
+            return profile.toString() + "(S) opened.";
+        }
+        else{
+            return profile.toString() + "(S) is already in the database.";
+        }
+    }
+    public String openMMAccount(Profile profile, double balance){
+        if(balance>=2000) {
+            MoneyMarket moneyMarket = new MoneyMarket(profile, balance, 0);
+            if(accountDatabase.open(moneyMarket)){
+                return profile.toString() + "(MM) opened.";
+            }
+            else{
+                return profile.toString() + "(MM) is already in the database.";
+            }
+        }
+        else{
+            return "Minimum of $2000 to open a Money Market account.";
+        }
+    }
+    public String handleCommandO(String[] inputData) {
+        String error = inputCheckForO(inputData);
+        if (error.isEmpty()) {
+            String accountType = inputData[1];
+            Date dob = Date.fromString(inputData[4]);
+            double balance = Double.parseDouble(inputData[5]);
+            Profile profile = new Profile(inputData[2], inputData[3], dob);
+            switch(accountType){
+                case "C":
+                    return openCheckingAccount(profile, balance);
+                case "CC":
+                    int campusCode = Integer.parseInt(inputData[6]);
+                    return openCCAccount(profile, balance, campusCode, dob);
+                case "S":
+                    int loyaltyCode = Integer.parseInt(inputData[6]);
+                    return openSavingsAccount(profile, balance, loyaltyCode);
+                case "MM":
+                    return openMMAccount(profile, balance);
+            }
+        }
+        return error;
+    }
+
+    /**
+     *
+     * @param inputData String array with each cell having an input value
+     * @return String with error message if input is incorrect, otherwise returns empty string
+     */
+//    public String inputCheckForC(String[] inputData) {
+//        try {
+//            if(inputData.length!=4)
+//                return "Missing data for closing an account.";
+//
+//            if (!date.withinBounds()){ //must check if date isvalid
+//
+//                return date + ": Invalid calendar date!";
+//            }
+//            if(!date.isFutureDate()){
+//                return date + ": Event date must be a future date!";
+//            }
+//            if(!date.notMoreThanSixMonths()){
+//                return date + ": Event date must be within 6 months!";
+//            }
+//            if (ts == null) {
+//                return "Invalid time slot!";
+//            }
+//            if (loc == null) {
+//                return "Invalid location!";
+//            }
+//            return "";
+//        } catch (Exception e) {
+//            return e.toString();
+//        }
+    // }
+
+    private String handleCommandW(String [] inputData){
+        String accountType = inputData[1];
+        Date dob = Date.fromString(inputData[4]);
+        Profile profile = new Profile(inputData[2], inputData[3], dob);
+        double withdrawalAmount = Double.parseDouble(inputData[5]);
+        if(withdrawalAmount<=0){
+            return "Withdraw - amount cannot be 0 or negative.";
+        }
+        else{
+            Account account = createDummyAccount(accountType, profile);
+            if(accountDatabase.contains(account)){
+                accountDatabase.withdraw(account, withdrawalAmount);
+                return profile.toString() + "("+accountType+") Withdraw - balance updated.";
+            }
+            else{
+                return profile.toString() + "("+accountType+") is not in the database.";
+            }
+        }
+    }
+
+//   private String handleCommandUB(){
+//        System.out.println("*list of accounts with fees and interests applied.");
+//
+//   }
+
+    public Account createDummyAccount(String accountType, Profile profile){
+        switch(accountType){
+            case "C":
+                return new Checking(profile, 0);
+            case "CC":
+                return new CollegeChecking(profile, 0, null);
+            case "S":
+                return new Savings(profile, 0, true);
+            case "MM":
+                return new MoneyMarket(profile, 0, 0);
+            default:
+                return null;
+        }
+    }
+
+
 }
