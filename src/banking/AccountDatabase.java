@@ -18,7 +18,7 @@ public class AccountDatabase {
     // Increase the capacity by 4
     private void grow() {
         Account[] newAccounts = new Account[accounts.length + 4];
-        for (int i = 0; i < numAcct; i++) {
+        for(int i =0; i<numAcct; i++){
             newAccounts[i] = accounts[i];
         }
         accounts = newAccounts;
@@ -27,7 +27,7 @@ public class AccountDatabase {
     // Find an account in the array
     private int find(Account account) {
         for (int i = 0; i < numAcct; i++) {
-            if (account.compareTo(accounts[i]) == 0) {
+            if (account.compareTo(accounts[i]) == 0 && account.getClass().getName().equals(accounts[i].getClass().getName())) {
                 return i;
             }
         }
@@ -38,7 +38,6 @@ public class AccountDatabase {
     public boolean contains(Account account) {
         return find(account) != NOT_FOUND;
     }
-
 
     // Add a new account to the database
     public boolean open(Account account) {
@@ -57,7 +56,6 @@ public class AccountDatabase {
         return true;
     }
 
-
     // Remove the given account from the database
     public boolean close(Account account) {
         int index = find(account);
@@ -71,27 +69,26 @@ public class AccountDatabase {
         return true;
     }
 
-
     // Withdraw an amount from the account (false if insufficient funds)
-    public boolean withdraw(Account account, double amount) { //check if moneymarket withdrawls are less than three
+    public boolean withdraw(Account account) { //check if moneymarket withdrawls are less than three
         int index = find(account);
         if (index == NOT_FOUND) {
             return false; // Account not found
         }
-        if (accounts[index].balance < amount) {
+        if (accounts[index].balance < account.balance) {
             return false; // Insufficient funds
         }
-        double amountToWithdraw = amount;
-        if (account instanceof MoneyMarket) {
+        double amountToWithdraw = account.balance;
+        if(account instanceof MoneyMarket){
             MoneyMarket mm = ((MoneyMarket) accounts[index]);
-            if (mm.getWithdrawal() > 3) {
-                amountToWithdraw += 10;
+            if(mm.getWithdrawal()>3){
+                amountToWithdraw+=10;
             }
-            if (mm.balance < amountToWithdraw) {
+            if(mm.balance<amountToWithdraw){
                 return false;
             }
-            mm.setWithdrawal(mm.getWithdrawal() + 1);
-            if ((mm.balance - amountToWithdraw) < 2000) {
+            mm.setWithdrawal(mm.getWithdrawal()+1);
+            if((mm.balance - amountToWithdraw) <2000){
                 mm.setLoyal(false);
             }
         }
@@ -100,22 +97,18 @@ public class AccountDatabase {
     }
 
     // Deposit an amount into the account
-    public boolean deposit(Account account, double amount) {
+    public void deposit(Account account) {
         int index = find(account);
-        if (index == NOT_FOUND) {
-            return false;
-        }
-        accounts[index].balance += amount;
-        if (account instanceof MoneyMarket) {
+        accounts[index].balance += account.balance;
+        if(account instanceof MoneyMarket) {
             MoneyMarket mm = ((MoneyMarket) accounts[index]);
-            if (mm.balance >= 2000) {
+            if(mm.balance>=2000){
                 mm.setLoyal(true);
             }
         }
-        return true;
     }
 
-    public String printSorted(String[] inputData) {
+    public String printSorted() {
         if (numAcct == 0) {
             return "Account Database is empty!";
         } else {
@@ -146,6 +139,9 @@ public class AccountDatabase {
             }
         }
     }
+
+
+
 
 
     public void printFeesAndInterests() {
@@ -264,7 +260,6 @@ public class AccountDatabase {
             System.out.println("*end of list.\n");
         }
     }
-
 
     public double getBalance(Account account) {
         int index = find(account); // Find the index of the specified account
