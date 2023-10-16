@@ -1,9 +1,5 @@
 package banking;
 
-/**
- * Extends Savinds and defines value for MM account
- * @author Ishani Mhatre
- */
 public class MoneyMarket extends Savings{
 
     private int withdrawal; //number of withdrawls
