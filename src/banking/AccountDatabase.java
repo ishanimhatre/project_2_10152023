@@ -18,7 +18,7 @@ public class AccountDatabase {
     // Increase the capacity by 4
     private void grow() {
         Account[] newAccounts = new Account[accounts.length + 4];
-        for(int i =0; i<numAcct; i++){
+        for (int i = 0; i < numAcct; i++) {
             newAccounts[i] = accounts[i];
         }
         accounts = newAccounts;
@@ -27,7 +27,7 @@ public class AccountDatabase {
     // Find an account in the array
     private int find(Account account) {
         for (int i = 0; i < numAcct; i++) {
-            if (account.compareTo(accounts[i])==0) {
+            if (account.compareTo(accounts[i]) == 0) {
                 return i;
             }
         }
@@ -40,11 +40,14 @@ public class AccountDatabase {
     }
 
 
-
     // Add a new account to the database
     public boolean open(Account account) {
-        if (accountExists(account) || cannotOpenBothCAndCC(account)) {
-            return false; // Account already exists or cannot open both "C" and "CC"
+        if (contains(account)) {
+//            System.out.println(account.holder.toString());
+//            System.out.println(accounts[find(account)].holder.toString());
+//            System.out.println(account.holder.compareTo(accounts[find(account)].holder));
+
+            return false; // Account already exists
         }
         accounts[numAcct] = account;
         numAcct++;
@@ -54,41 +57,12 @@ public class AccountDatabase {
         return true;
     }
 
-    // Check if an account of the same type already exists for the same profile
-    private boolean accountExists(Account newAccount) {
-        for (int i = 0; i < numAcct; i++) {
-            Account existingAccount = accounts[i];
-            if (existingAccount.getProfile().equals(newAccount.getProfile()) && existingAccount.getClass().equals(newAccount.getClass())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Check if both "C" and "CC" accounts are attempted to be opened
-    private boolean cannotOpenBothCAndCC(Account newAccount) {
-        String accountType = newAccount.getClass().getSimpleName();
-        if (accountType.equals("C") || accountType.equals("CC")) {
-            for (int i = 0; i < numAcct; i++) {
-                Account existingAccount = accounts[i];
-                if (existingAccount.getProfile().equals(newAccount.getProfile())) {
-                    String existingAccountType = existingAccount.getClass().getSimpleName();
-                    if (existingAccountType.equals("C") || existingAccountType.equals("CC")) {
-                        return true; // Cannot open both "C" and "CC"
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
 
     // Remove the given account from the database
     public boolean close(Account account) {
         int index = find(account);
-        if (index == NOT_FOUND || accounts[index].getClass().getName()!=account.getClass().getName()) {
-            return false; // Account not found or account details do not match
+        if (index == NOT_FOUND) {
+            return false; // Account not found
         }
         // Move the last account to the removed account's position
         accounts[index] = accounts[numAcct - 1];
@@ -108,16 +82,16 @@ public class AccountDatabase {
             return false; // Insufficient funds
         }
         double amountToWithdraw = amount;
-        if(account instanceof MoneyMarket){
+        if (account instanceof MoneyMarket) {
             MoneyMarket mm = ((MoneyMarket) accounts[index]);
-            if(mm.getWithdrawal()>3){
-                amountToWithdraw+=10;
+            if (mm.getWithdrawal() > 3) {
+                amountToWithdraw += 10;
             }
-            if(mm.balance<amountToWithdraw){
+            if (mm.balance < amountToWithdraw) {
                 return false;
             }
-            mm.setWithdrawal(mm.getWithdrawal()+1);
-            if((mm.balance - amountToWithdraw) <2000){
+            mm.setWithdrawal(mm.getWithdrawal() + 1);
+            if ((mm.balance - amountToWithdraw) < 2000) {
                 mm.setLoyal(false);
             }
         }
@@ -128,13 +102,13 @@ public class AccountDatabase {
     // Deposit an amount into the account
     public boolean deposit(Account account, double amount) {
         int index = find(account);
-        if (index == NOT_FOUND || accounts[index].getClass().getName()!=account.getClass().getName()) {
+        if (index == NOT_FOUND) {
             return false;
         }
         accounts[index].balance += amount;
-        if(account instanceof MoneyMarket) {
+        if (account instanceof MoneyMarket) {
             MoneyMarket mm = ((MoneyMarket) accounts[index]);
-            if(mm.balance>=2000){
+            if (mm.balance >= 2000) {
                 mm.setLoyal(true);
             }
         }
@@ -154,8 +128,9 @@ public class AccountDatabase {
                     System.out.println(account.toString());
                 }
             }
-            return null;
+            System.out.println("*end of list.\n");
         }
+        return null;
     }
 
 
@@ -173,39 +148,11 @@ public class AccountDatabase {
     }
 
 
-//    // Calculate interests and fees
-//    public void printFeesAndInterests() {
-//        if (numAcct == 0) {
-//            System.out.println("Account Database is empty!");
-//        } else {
-//            for (int i = 0; i < numAcct; i++) {
-//                Account account = accounts[i];
-//                String accountType = account.getClass().getSimpleName();
-//                String holder = account.getProfile().getFirstName() + " " + account.getProfile().getLastName();
-//                String dob = account.getProfile().getDateOfBirth().toString();
-//                double balance = account.getBalance();
-//                double monthlyInterest = account.monthlyInterest();
-//                double monthlyFee = account.monthlyFee();
-//
-//                // Check if the account is Money Market and if it's loyal
-//                if (account instanceof MoneyMarket) {
-//                    MoneyMarket mm = (MoneyMarket) account;
-//                    if (mm.isLoyal()) {
-//                        holder += " (Loyal)";
-//                    }
-//                }
-//
-//                // Print the account details, fee, and interest
-//                System.out.printf("%s::%s %s::Balance $%.2f::fee $%.2f::monthly interest $%.2f%n", accountType, holder, dob, balance, monthlyFee, monthlyInterest);
-//            }
-//        }
-//    }
-
     public void printFeesAndInterests() {
         if (numAcct == 0) {
             System.out.println("Account Database is empty!");
         } else {
-            System.out.println("*list of accounts with fee and monthly interest");
+            System.out.println("\n*list of accounts with fee and monthly interest");
             // Create arrays for each account type
             Account[] checkingAccounts = new Account[numAcct];
             Account[] collegeCheckingAccounts = new Account[numAcct];
@@ -245,7 +192,7 @@ public class AccountDatabase {
             printAccounts(moneyMarketAccounts, numMoneyMarket);
             printAccounts(savingsAccounts, numSavings);
 
-            System.out.println("*end of list.");
+            System.out.println("*end of list.\n");
         }
     }
 
@@ -283,13 +230,12 @@ public class AccountDatabase {
     }
 
 
-
     // Apply interests and fees to update balances
     public void printUpdatedBalances() {
         if (numAcct == 0) {
             System.out.println("Account Database is empty!");
         } else {
-            System.out.println("*list of accounts with fees and interests applied.");
+            System.out.println("\n*list of accounts with fees and interests applied.");
             for (int i = 0; i < numAcct; i++) {
                 Account account = accounts[i];
                 double monthlyInterest = account.monthlyInterest();
@@ -315,7 +261,7 @@ public class AccountDatabase {
 
                 System.out.println(accountType + "::" + profileDetails + "::" + balanceString);
             }
-            System.out.println("*end of list.");
+            System.out.println("*end of list.\n");
         }
     }
 
@@ -327,36 +273,6 @@ public class AccountDatabase {
         }
         return -1.0; // Return a negative value (or another suitable indicator) to indicate that the account was not found.
     }
-
-
-//    / Calculate updated balances and return them in an array
-//    public double[] calculateUpdatedBalances() {
-//        double[] updatedBalances = new double[numAcct];
-//
-//        for (int i = 0; i < numAcct; i++) {
-//            Account account = accounts[i];
-//            double monthlyInterest = account.monthlyInterest();
-//            double monthlyFee = account.monthlyFee();
-//
-//            // Calculate the updated balance based on the interest and fees
-//            double updatedBalance = account.getBalance() + monthlyInterest - monthlyFee;
-//            updatedBalances[i] = updatedBalance;
-//        }
-//
-//        return updatedBalances;
-//    }
-//
-//    // Print the updated balances
-//    public void printUpdatedBalances(double[] updatedBalances) {
-//        for (int i = 0; i < numAcct; i++) {
-//            Account account = accounts[i];
-//            String accountType = account.getClass().getSimpleName(); // Get the account type
-//
-//            // Print the updated balance for each account
-//            System.out.printf("%s - Updated Balance: $%.2f%n", accountType, updatedBalances[i]);
-//        }
-//    }
-
 
 
 }
