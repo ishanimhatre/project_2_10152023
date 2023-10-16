@@ -2,7 +2,6 @@ package banking;
 
 /**
  * Class for a College Checking account which extends Checking and defines interest rate and monthly fee
- * @author Keerthana Talla
  */
 public class CollegeChecking extends Checking{
 
@@ -19,7 +18,7 @@ public class CollegeChecking extends Checking{
 
     @Override
     public int compareTo(Account account) {
-        if(account instanceof CollegeChecking){
+        if(account instanceof Checking){
             return super.compareTo(account);
         }
         else {
