@@ -3,11 +3,19 @@ package banking;
 import java.util.Scanner;
 
 /** Represents the User Interface
- * @author Keerthana Talla
  * @author Ishani Mhatre
+ * @author Keerthana Talla
  */
 
 public class TransactionManager {
+
+    public static final int MAX_AGE = 24; //maximum age to open College Checking account
+    public static final int MIN_AGE = 16;
+    public static final int MM_MIN_VAL = 2000; //minimum value to open MM account
+    public static final int LOWER_BOUND = 0; //lower bound to check no negative numbers
+    public static final int UPPER_BOUND_CAMPUS_CODE = 2;
+    public static final int UPPER_BOUND_LOYALTY_CODE = 1;
+
     private AccountDatabase accountDatabase;
 
     /**
@@ -65,8 +73,8 @@ public class TransactionManager {
     }
 
     private String handleCommandD(String[] inputData) {
-        if (inputData.length < 4) {
-            return ("Invalid input format. Expected: D <AccountType> <Name> <DateOfBirth> <Amount>");
+        if (inputData.length < 5) {
+            return "Missing date for depositing into account.";
         }
 
         try {
@@ -77,22 +85,38 @@ public class TransactionManager {
             Profile profile = new Profile(inputData[2], inputData[3], dob);
             double amount = Double.parseDouble(inputData[5]);
 
-            if (amount <= 0) {
-                return ("Deposit - amount cannot be 0 or negative.\n");
+            if (amount <= LOWER_BOUND) {
+                return "Deposit - amount cannot be 0 or negative.";
             }
 
-            Account account = createDummyAccount(accountType, profile);
-            // Validate the account holder's information (you may need to implement your own logic for this)
-            if (!accountDatabase.contains(account)) {
-                return (profile.toString() + "(" + accountType + ") is not in the database.");
-            } else {
+            Account account = null;
+
+            switch (accountType) {
+                case "C":
+                    account = new Checking(profile, amount);
+                    break;
+                case "CC":
+                    account = new CollegeChecking(profile, 0, null);
+                    break;
+                // Add more cases for other account types if needed
+                default:
+                    return "Invalid account type.";
+            }
+
+            if (accountDatabase.open(account)) {
+                return profile.toString() + "(" + accountType + ") Deposit - balance updated.";
+            } else if (accountDatabase.contains(account)) {
                 accountDatabase.deposit(account, amount);
-                return (profile.toString() + "(" + accountType + ")" + "Deposit - balance updated.");
+                return profile.toString() + "(" + accountType + ") Deposit - balance updated.";
+            } else {
+                return profile.toString() + "(" + accountType + ") is not in the database.";
             }
         } catch (Exception e) {
-            return "Not valid format.";
+            return "Not a valid amount.";
         }
     }
+
+
 
     private String handleCommandC(String[] inputData) {
         try {
@@ -106,7 +130,7 @@ public class TransactionManager {
 
             if (!dob.isValid()) {return "DOB invalid: " + dob + " not a valid calendar date!";}
             if (!dob.isPresentorFutureDate()) { return "DOB invalid: " + dob + " cannot be today or a future day.";}
-            if (dob.getAge() < 16) {return "DOB invalid: " + dob + " under 16.";}
+            if (dob.getAge() < MIN_AGE) {return "DOB invalid: " + dob + " under 16.";}
             Profile profile = new Profile(inputData[2], inputData[3], dob);
             // Find the account in the database
             Account account = createDummyAccount(accountType, profile);
@@ -115,7 +139,7 @@ public class TransactionManager {
                 accountDatabase.close(account);
                 return profile.toString() + " (" + accountType + ") has been closed.";
             } else
-                return profile.toString() + " (" + accountType + ") not in the database.";
+                return profile.toString() + " (" + accountType + ") is not in the database.";
         } catch (Exception e) {
             return (e.toString());
         }
@@ -140,7 +164,7 @@ public class TransactionManager {
                 String lastName = inputData[3];
                 Date date = Date.fromString(inputData[4]);
                 double balance = Double.parseDouble(inputData[5]); //check if 0 or negative
-                if (balance <= 0) {
+                if (balance <= LOWER_BOUND) {
                     return "Initial deposit cannot be 0 or negative.";
                 }
                 if (!date.isValid()) {
@@ -149,20 +173,20 @@ public class TransactionManager {
                 if (!date.isPresentorFutureDate()) {
                     return "DOB invalid: " + date + " cannot be today or a future day.";
                 }
-                if (date.getAge() < 16) {
+                if (date.getAge() < MIN_AGE) {
                     return "DOB invalid: " + date + " under 16.";
                 }
-                if (accountType.equals("CC") && (Integer.parseInt(inputData[6])<0 || Integer.parseInt(inputData[6])>2)) {
+                if (accountType.equals("CC") && (Integer.parseInt(inputData[6])< LOWER_BOUND || Integer.parseInt(inputData[6])> UPPER_BOUND_CAMPUS_CODE)) {
                     return "Invalid campus code.";
                 }
-                if (accountType.equals("S") && (Integer.parseInt(inputData[6]) < 0 || Integer.parseInt(inputData[6]) > 1)) {
+                if (accountType.equals("S") && (Integer.parseInt(inputData[6]) < LOWER_BOUND || Integer.parseInt(inputData[6]) > UPPER_BOUND_LOYALTY_CODE)) {
                     return "Invalid loyalty code.";
                 }
                 return "";
             }
         }
         catch(NumberFormatException e){
-            return "Not Valid Format.";
+            return "Not a valid amount.";
         }
     }
 
@@ -179,7 +203,7 @@ public class TransactionManager {
     }
 
     public String openCCAccount(Profile profile, double balance, int campusCode, Date dob){
-        if(dob.getAge()<24) {
+        if(dob.getAge()< MAX_AGE) {
             Campus campus = Campus.fromCode(campusCode);
             CollegeChecking ccAccount = new CollegeChecking(profile, balance, campus);
             if (accountDatabase.open(ccAccount)) {
@@ -210,7 +234,7 @@ public class TransactionManager {
         }
     }
     public String openMMAccount(Profile profile, double balance){
-        if(balance>=2000) {
+        if(balance>= MM_MIN_VAL) {
             MoneyMarket moneyMarket = new MoneyMarket(profile, balance, 0);
             if(accountDatabase.open(moneyMarket)){
                 return profile.toString() + "(MM) opened.";
@@ -278,30 +302,35 @@ public class TransactionManager {
 //        }
     // }
 
-    private String handleCommandW(String [] inputData){
+    private String handleCommandW(String[] inputData) {
         String accountType = inputData[1];
         Date dob = Date.fromString(inputData[4]);
         Profile profile = new Profile(inputData[2], inputData[3], dob);
-        double withdrawalAmount = Double.parseDouble(inputData[5]);
-        if(withdrawalAmount<=0){
-            return "Withdraw - amount cannot be 0 or negative.";
-        }
-        else{
-            Account account = createDummyAccount(accountType, profile);
-            if(accountDatabase.contains(account)){
-                accountDatabase.withdraw(account, withdrawalAmount);
-                return profile.toString() + "("+accountType+") Withdraw - balance updated.";
+
+        try {
+            double withdrawalAmount = Double.parseDouble(inputData[5]);
+            if (withdrawalAmount <= 0) {
+                return "Withdraw - amount cannot be 0 or negative.";
+            } else {
+                Account account = createDummyAccount(accountType, profile);
+                if (accountDatabase.contains(account)) {
+                    double currentBalance = accountDatabase.getBalance(account); // Assuming you have a method to get the account balance
+                    if (withdrawalAmount > currentBalance) {
+                        return profile.toString() + "(" + accountType + ") Withdraw - insufficient funds.";
+                    } else {
+                        accountDatabase.withdraw(account, withdrawalAmount);
+                        return profile.toString() + "(" + accountType + ") Withdraw - balance updated.";
+                    }
+                } else {
+                    return profile.toString() + "(" + accountType + ") is not in the database.";
+                }
             }
-            else{
-                return profile.toString() + "("+accountType+") is not in the database.";
-            }
+        } catch (NumberFormatException e) {
+            return "Not a valid amount.";
         }
     }
 
-//   private String handleCommandUB(){
-//        System.out.println("*list of accounts with fees and interests applied.");
-//
-//   }
+
 
     public Account createDummyAccount(String accountType, Profile profile){
         switch(accountType){
