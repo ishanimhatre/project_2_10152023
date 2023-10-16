@@ -1,6 +1,7 @@
 package banking;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 /** This class initializes Date object with year, month, and day. Checks if input date is valid
  * @author Ishani Mhatre
@@ -48,7 +49,8 @@ public class Date implements Comparable<Date> {
     public static final int NODAYSLEFTOVER = 0; //Holds true for leap year
 
     //Min & Max ages
-    // public static final int MIN_AGE = 16; //minimum age to open bank account
+    public static final int MIN_AGE = 16; //minimum age to open bank account
+    public static final int MAX_AGE = 24; //maximum age to open College Checking account
 
     private int year;
     private int month;
@@ -234,10 +236,10 @@ public class Date implements Comparable<Date> {
     }
 
 
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(day, month, year);
-//    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, month, year);
+    }
 
     @Override
     public boolean equals(Object obj) {
