@@ -1,12 +1,6 @@
 package banking;
 
 import java.util.Calendar;
-import java.util.Objects;
-
-/** This class initializes Date object with year, month, and day. Checks if input date is valid
- * @author Ishani Mhatre
- */
-
 
 public class Date implements Comparable<Date> {
 
@@ -17,11 +11,10 @@ public class Date implements Comparable<Date> {
     }
 
     // days in a month for the whole year
-    public static final int DAYSINMONTH_ONE = 30; //max days first value
-    public static final int DAYSINMONTH_TWO = 31; //max days second value
-    public static final int FEBREGULAR = 28; //max for non leap year
-    public static final int FEBLEAPYEAR = 29; //max for leap year
-
+    public static final int daysinMonth_1 = 30; //max days first value
+    public static final int daysinMonth_2 = 31; //max days second value
+    public static final int febRegular = 28; //max for non leap year
+    public static final int febLeapYear = 29; //max for leap year
     // 12 cases for each month
     public static final int JAN = 1;
     public static final int FEB = 2;
@@ -45,13 +38,6 @@ public class Date implements Comparable<Date> {
     public static final int LOWERBOUND = 1; //cannot be negative
     public static final int COUNTOFMONTHSINYEAR = 12; //total months
 
-    //No remainder
-    public static final int NODAYSLEFTOVER = 0; //Holds true for leap year
-
-    //Min & Max ages
-    public static final int MIN_AGE = 16; //minimum age to open bank account
-    public static final int MAX_AGE = 24; //maximum age to open College Checking account
-
     private int year;
     private int month;
     private int day;
@@ -71,6 +57,7 @@ public class Date implements Comparable<Date> {
         if (!withinBounds()) {
             return false;
         }
+
         return true;
     }
 
@@ -81,19 +68,19 @@ public class Date implements Comparable<Date> {
      */
     private int calculateMaxDaysInMonth() {
         switch (month) {
-            case JAN: return DAYSINMONTH_TWO;
-            case FEB: return isLeapYear() ? FEBLEAPYEAR : FEBREGULAR;
-            case MARCH: return DAYSINMONTH_TWO;
-            case APRIL: return DAYSINMONTH_ONE;
-            case MAY: return DAYSINMONTH_TWO;
-            case JUNE: return DAYSINMONTH_ONE;
-            case JULY: return DAYSINMONTH_TWO;
-            case AUGUST: return DAYSINMONTH_TWO;
-            case SEPT: return DAYSINMONTH_ONE;
-            case OCT: return DAYSINMONTH_TWO;
-            case NOV: return DAYSINMONTH_ONE;
-            case DEC: return DAYSINMONTH_TWO;
-            default: return NODAYSLEFTOVER;
+            case JAN: return daysinMonth_2;
+            case FEB: return isLeapYear() ? febLeapYear : febRegular;
+            case MARCH: return daysinMonth_2;
+            case APRIL: return daysinMonth_1;
+            case MAY: return daysinMonth_2;
+            case JUNE: return daysinMonth_1;
+            case JULY: return daysinMonth_2;
+            case AUGUST: return daysinMonth_2;
+            case SEPT: return daysinMonth_1;
+            case OCT: return daysinMonth_2;
+            case NOV: return daysinMonth_1;
+            case DEC: return daysinMonth_2;
+            default: return 0;
         }
     }
 
@@ -102,7 +89,7 @@ public class Date implements Comparable<Date> {
      * @return true if Leap Year and false is not
      */
     private boolean isLeapYear() {
-        return (year % QUADRENNIAL == NODAYSLEFTOVER && year % CENTENNIAL != NODAYSLEFTOVER) || (year % QUATERCENTENNIAL == NODAYSLEFTOVER);
+        return (year % QUADRENNIAL == 0 && year % CENTENNIAL != 0) || (year % QUATERCENTENNIAL == 0);
     }
 
     /**
@@ -133,6 +120,19 @@ public class Date implements Comparable<Date> {
         return true;
     }
 
+    public int getAge(){
+        Calendar birthDateCalendar = Calendar.getInstance();
+        birthDateCalendar.set(this.getYear(), this.getMonth() - 1, this.getDay());
+        Calendar today = Calendar.getInstance();
+        int age = today.get(Calendar.YEAR) - birthDateCalendar.get(Calendar.YEAR);
+
+        if (today.get(Calendar.MONTH) < birthDateCalendar.get(Calendar.MONTH) ||
+                (today.get(Calendar.MONTH) == birthDateCalendar.get(Calendar.MONTH) &&
+                        today.get(Calendar.DAY_OF_MONTH) < birthDateCalendar.get(Calendar.DAY_OF_MONTH))) {
+            age--;
+        }
+        return age;
+    }
 
     /**
      * Check that Date is in the future, not past
@@ -153,108 +153,192 @@ public class Date implements Comparable<Date> {
 
 
     /**
-     * Checks miniimum age requirements for opening account
-     * @return true if over sixteen years and false if not
-     */
-//    boolean isAtLeast16YearsOld() {
-//        // Calculate today's date
-//        Calendar currentDate = Calendar.getInstance();
-//
-//        // Calculate a date 16 years ago
-//        Calendar eighteenYearsAgo = Calendar.getInstance();
-//        eighteenYearsAgo.add(Calendar.YEAR, -MIN_AGE);
-//
-//        // Check if the date of birth is on or before the date 16 years ago
-//        Calendar today = Calendar.getInstance();
-//        Calendar eventDate = Calendar.getInstance();
-//        eventDate.set(this.getYear(), this.getMonth(), this.getDay());
-//
-//        if(eventDate.before(isAtLeast16YearsOld()) || (eventDate.equals(isAtLeast16YearsOld()))) {
-//            return true;
-//        }
-//
-//        return false;
-//    }
-
-    /**
-     * Checks age is valid for College Checking account
-     * @return true if age between range and false if not
-     */
-//    boolean isAbove24() {
-//        // Calculate today's date
-//        Calendar currentDate = Calendar.getInstance();
-//
-//        // Calculate a date 24 years ago from today (upper bound)
-//        Calendar twentyFourYearsAgo = Calendar.getInstance();
-//        twentyFourYearsAgo.add(Calendar.YEAR, -MAX_AGE);
-//
-//        // Calculate a date of birth
-//        Calendar birthDate = Calendar.getInstance();
-//        birthDate.set(this.getYear(), this.getMonth() - 1, this.getDay()); // Adjust month to be 0-based
-//
-//        // Check if the date of birth is after 24 years ago
-//        return birthDate.after(twentyFourYearsAgo);
-//    }
-
-
-    public int getAge(){
-        Calendar birthDateCalendar = Calendar.getInstance();
-        birthDateCalendar.set(this.getYear(), this.getMonth() - 1, this.getDay());
-        Calendar today = Calendar.getInstance();
-        int age = today.get(Calendar.YEAR) - birthDateCalendar.get(Calendar.YEAR);
-
-        if (today.get(Calendar.MONTH) < birthDateCalendar.get(Calendar.MONTH) ||
-                (today.get(Calendar.MONTH) == birthDateCalendar.get(Calendar.MONTH) &&
-                        today.get(Calendar.DAY_OF_MONTH) < birthDateCalendar.get(Calendar.DAY_OF_MONTH))) {
-            age--;
-        }
-        return age;
-    }
-
-
-
-
-    /**
      * checking  date object with current year, month, day
      * @param date for date object
-     * @return less than zero, equal to, or greater than zero based on compareTo
+     * @return less than 0, equal to, or greater than 0 based on compareTo
      */
     @Override
     public int compareTo(Date date) {
-        if(this.equals(date)) {
-            return NODAYSLEFTOVER;
-        }else {
-
-            if (this.year != date.year) {
-                return Integer.compare(this.year, date.year);
-            }
-            if (this.month != date.month) {
-                return Integer.compare(this.month, date.month);
-            }
-            return Integer.compare(this.day, date.day);
+        if (this.year != date.year) {
+            return Integer.compare(this.year, date.year);
         }
+        if (this.month != date.month) {
+            return Integer.compare(this.month, date.month);
+        }
+        return Integer.compare(this.day, date.day);
     }
 
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(day, month, year);
-    }
-
+    /**
+     * Check if object equal to date instance
+     * @param obj created  object to compare instance of date object
+     * @return true if Leap Year and false is not
+     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Date other = (Date) obj;
-        return day == other.day && month == other.month && year == other.year;
+        if (obj instanceof Date) {
+            Date date = (Date) obj;
+            return this.year == date.year && this.month == date.month && this.day == date.day;
+        }
+        return false;
     }
     @Override
     public String toString() {
         return String.format("%-1d/%-1d/%-1d", month, day, year);
+    }
+
+    /**
+     * Testbed to exercise the isValid method
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
+        // Implement test cases to thoroughly test the isValid() method.
+        testMonthOutOfRange();
+        testYearOutOfRange();
+        testDayOutOfRange();
+        futureDateOutOfRange();
+        testDaysInFeb_NonLeap();
+        negativeMonthVal();
+        negativeDayVal();
+        testNegativeYear();
+        zeroVal();
+
+        testDaysInFeb_Leap();
+        correct_testDaysInFeb_nonLeap();
+        correctInput();
+    }
+
+    /**
+     * Test case #1
+     * Implement test cases for months out of range
+     */
+    private static void testMonthOutOfRange() {
+        Date date = new Date(2023, 13, 15);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #2
+     * Implement test cases for years out of range and from the past
+     */
+    private static void testYearOutOfRange() {
+        Date date = new Date(2000, 11, 15);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #3
+     * Implement test cases for days out of range.
+     */
+    private static void testDayOutOfRange() {
+        Date date = new Date(2023, 11, 35);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #4
+     * Implement test cases for years out of range of six months into the future.
+     */
+    private static void futureDateOutOfRange() {
+        Date date = new Date(2027, 10, 21);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #5
+     * Implement test cases for February in non-leap years.
+     */
+    private static void testDaysInFeb_NonLeap() {
+        Date date = new Date(2023, 02, 29);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #6
+     * Implement test cases for negative value for Month
+     */
+    private static void negativeMonthVal() {
+        Date date = new Date(2024, -1, 25);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #7
+     * Implement test cases for negative value for Day
+     */
+    private static void negativeDayVal() {
+        Date date = new Date(2023, 12, -2);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+
+    /**
+     * test case #8
+     * Implement test cases for negative year
+     */
+    private static void testNegativeYear() {
+        Date date = new Date(-1, 12, 31);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #9
+     * Implement test cases for values of 0
+     */
+    private static void zeroVal() {
+        Date date = new Date(2023, 11, 0);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #10
+     * Implement test to check maximum value for February in leap year.
+     */
+    private static void testDaysInFeb_Leap() {
+        Date date = new Date(02,29,2024);
+        boolean expectedOutput = true;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+    /**
+     * Test case #11
+     * Implement test to check maximum value for February in non leap year.
+     */
+    private static void correct_testDaysInFeb_nonLeap() {
+        Date date = new Date(02,28,2023);
+        boolean expectedOutput = true;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
+    }
+
+
+    /**
+     * Test case #12
+     * Implement test for valid date input
+     */
+    private static void correctInput() { //valid test case 2
+        Date date = new Date(10, 20, 2023);
+        boolean expectedOutput = false;
+        boolean actualOutput = date.isValid();
+        testResult(date, expectedOutput, actualOutput);
     }
 
     /**
@@ -293,5 +377,3 @@ public class Date implements Comparable<Date> {
         return day;
     }
 }
-
-
