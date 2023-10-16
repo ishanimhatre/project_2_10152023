@@ -46,11 +46,12 @@ public abstract class Account implements Comparable<Account> {
         return this.holder.equals(otherAccount.holder);
     }
 
-    @Override
-    public String toString() {
-        return holder.toString();
-    }
 
+    @Override
+    public abstract String toString();
 }
+
+
+
 
 
