@@ -46,4 +46,3 @@ public class Checking extends Account {
         return "Checking: : " + holder.toString() + ": : Balance $" + balance;
     }
 }
-
