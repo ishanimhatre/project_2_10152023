@@ -11,10 +11,10 @@ public class Date implements Comparable<Date> {
     }
 
     // days in a month for the whole year
-    public static final int daysinMonth_1 = 30; //max days first value
-    public static final int daysinMonth_2 = 31; //max days second value
-    public static final int febRegular = 28; //max for non leap year
-    public static final int febLeapYear = 29; //max for leap year
+    public static final int DAYSINMONTH_1 = 30; //max days first value
+    public static final int DAYSINMONTH_2 = 31; //max days second value
+    public static final int FEBREGULAR = 28; //max for non leap year
+    public static final int FEBLEAPYEAR = 29; //max for leap year
     // 12 cases for each month
     public static final int JAN = 1;
     public static final int FEB = 2;
@@ -68,18 +68,18 @@ public class Date implements Comparable<Date> {
      */
     private int calculateMaxDaysInMonth() {
         switch (month) {
-            case JAN: return daysinMonth_2;
-            case FEB: return isLeapYear() ? febLeapYear : febRegular;
-            case MARCH: return daysinMonth_2;
-            case APRIL: return daysinMonth_1;
-            case MAY: return daysinMonth_2;
-            case JUNE: return daysinMonth_1;
-            case JULY: return daysinMonth_2;
-            case AUGUST: return daysinMonth_2;
-            case SEPT: return daysinMonth_1;
-            case OCT: return daysinMonth_2;
-            case NOV: return daysinMonth_1;
-            case DEC: return daysinMonth_2;
+            case JAN: return DAYSINMONTH_2;
+            case FEB: return isLeapYear() ? FEBLEAPYEAR : FEBREGULAR;
+            case MARCH: return DAYSINMONTH_2;
+            case APRIL: return DAYSINMONTH_1;
+            case MAY: return DAYSINMONTH_2;
+            case JUNE: return DAYSINMONTH_1;
+            case JULY: return DAYSINMONTH_2;
+            case AUGUST: return DAYSINMONTH_2;
+            case SEPT: return DAYSINMONTH_1;
+            case OCT: return DAYSINMONTH_2;
+            case NOV: return DAYSINMONTH_1;
+            case DEC: return DAYSINMONTH_2;
             default: return 0;
         }
     }
