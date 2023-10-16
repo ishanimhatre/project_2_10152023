@@ -21,7 +21,6 @@ public abstract class Account implements Comparable<Account> {
         return holder;
     }
 
-
     public abstract double monthlyInterest();
 
     public abstract double monthlyFee();
@@ -56,8 +55,6 @@ public abstract class Account implements Comparable<Account> {
     public abstract String toString();
 
 }
-
-
 
 
 
