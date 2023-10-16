@@ -33,11 +33,16 @@ public class Checking extends Account {
 
     @Override
     public int compareTo(Account account) {
-        if(account instanceof Checking && !(account instanceof CollegeChecking)){
+        if(account instanceof Checking){
             return super.compareTo(account);
         }
         else {
             return account.getClass().getName().compareTo(this.getClass().getName());
         }
+    }
+
+    @Override
+    public String toString(){
+        return "Checking: : " + holder.toString() + ": : Balance $" + balance;
     }
 }
