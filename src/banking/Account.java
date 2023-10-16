@@ -38,6 +38,7 @@ public abstract class Account implements Comparable<Account> {
         return this.holder.compareTo(otherAccount.holder);
     }
 
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
