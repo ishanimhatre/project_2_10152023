@@ -1,35 +1,63 @@
 package banking;
 
-/**
- * Class that extends Savings and defines interest rate, monthly fee, and minimum balance for Money Market account
- * @author Ishani Mhatre
- */
-public class MoneyMarket extends Savings {
-    private static final double INTEREST_RATE = 0.0475;
-    private static final double MONTHLY_FEE = 25.0;
-    private static final double MINIMUM_BALANCE = 2000.0;
-    private int withdrawals;
+public class MoneyMarket extends Savings{
 
-    public MoneyMarket(Profile holder, double balance) {
-        super(holder, balance, true); // Money Market accounts are considered loyal by default
-        this.withdrawals = 0;
+    private int withdrawal; //number of withdrawls
+    private static final double INTEREST_RATE = 4.5;
+    protected static final double MIN_BALANCE = 2000.0;
+
+    public MoneyMarket(){
+
+    }
+
+    public MoneyMarket(Profile holder, double balance, int withdrawal) {
+        super(holder, balance, true);
+        this.withdrawal = withdrawal;
+    }
+
+    public int getWithdrawal() {
+        return withdrawal;
+    }
+
+    public void setWithdrawal(int withdrawal) {
+        this.withdrawal = withdrawal;
     }
 
     @Override
     public double monthlyInterest() {
-        if (balance >= MINIMUM_BALANCE) {
-            return balance * INTEREST_RATE / 12;
-        } else {
-            return super.monthlyInterest(); // Use the base savings interest rate
+        if(isLoyal){
+            double interestRate = INTEREST_RATE+0.25;
+            return (balance*(interestRate/100))/12;
+        }
+        else{
+            return (balance*(INTEREST_RATE/100))/12;
         }
     }
 
     @Override
     public double monthlyFee() {
-        if (balance >= MINIMUM_BALANCE) {
-            return 0.0;
-        } else {
-            return MONTHLY_FEE;
+        if(balance>=MIN_BALANCE){
+            return 0;
         }
+        else{
+            return Savings.MONTHLY_FEE;
+        }
+    }
+    @Override
+    public int compareTo(Account account) {
+        if(account instanceof MoneyMarket){
+            return super.compareTo(account);
+        }
+        else {
+            return account.getClass().getName().compareTo(this.getClass().getName());
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (isLoyal)
+            return "Money Market: : " + holder.toString() + ": : Balance $" + balance + ": : is loyal";
+        else
+            return "Money Market: : " + holder.toString() + ": : Balance $" + balance;
     }
 }
