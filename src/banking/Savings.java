@@ -1,5 +1,9 @@
 package banking;
 
+/**
+ * Creates Savinds class to extend Account with specifications
+ * @author Ishani Mhatre
+ */
 public class Savings extends Account{
     protected boolean isLoyal; //loyal customer status
     private static final double INTEREST_RATE = 4.0;
@@ -47,15 +51,16 @@ public class Savings extends Account{
             return super.compareTo(account);
         }
         else {
-            return account.getClass().getName().compareTo(this.getClass().getName());
+            //System.out.println("Comparing " + account.getClass().getName() + " and " + this.getClass().getName());
+            return account.getClass().getName().compareTo(this.getClass().getName()); //this should be caleld
         }
     }
 
     @Override
     public String toString(){
         if(isLoyal)
-            return "Savings : " +holder.toString() + ": : Balance $" + balance + ": : is loyal";
+            return "Savings: : " +holder.toString() + ": : Balance $" + balance + ": : is loyal";
         else
-            return "Savings : " +holder.toString() + ": : Balance $" + balance;
+            return "Savings: : " +holder.toString() + ": : Balance $" + balance;
     }
 }
