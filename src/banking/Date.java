@@ -1,6 +1,7 @@
 package banking;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 /** This class initializes Date object with year, month, and day. Checks if input date is valid
  * @author Ishani Mhatre
@@ -70,15 +71,6 @@ public class Date implements Comparable<Date> {
         if (!withinBounds()) {
             return false;
         }
-
-        if (!isPresentorFutureDate()) {
-            return false;
-        }
-
-        if (!isAtLeast16YearsOld()) {
-            return false;
-        }
-
         return true;
     }
 
@@ -101,7 +93,7 @@ public class Date implements Comparable<Date> {
             case OCT: return DAYSINMONTH_TWO;
             case NOV: return DAYSINMONTH_ONE;
             case DEC: return DAYSINMONTH_TWO;
-            default: return 0;
+            default: return NODAYSLEFTOVER;
         }
     }
 
@@ -164,47 +156,60 @@ public class Date implements Comparable<Date> {
      * Checks miniimum age requirements for opening account
      * @return true if over sixteen years and false if not
      */
-    boolean isAtLeast16YearsOld() {
-        // Calculate today's date
-        Calendar currentDate = Calendar.getInstance();
-
-        // Calculate a date 16 years ago
-        Calendar eighteenYearsAgo = Calendar.getInstance();
-        eighteenYearsAgo.add(Calendar.YEAR, -MIN_AGE);
-
-        // Check if the date of birth is on or before the date 18 years ago
-        Calendar today = Calendar.getInstance();
-        Calendar eventDate = Calendar.getInstance();
-        eventDate.set(this.getYear(), this.getMonth(), this.getDay());
-
-        if(eventDate.before(eighteenYearsAgo) || (eventDate.equals(eighteenYearsAgo))) {
-            return true;
-        }
-
-        return false;
-    }
+//    boolean isAtLeast16YearsOld() {
+//        // Calculate today's date
+//        Calendar currentDate = Calendar.getInstance();
+//
+//        // Calculate a date 16 years ago
+//        Calendar eighteenYearsAgo = Calendar.getInstance();
+//        eighteenYearsAgo.add(Calendar.YEAR, -MIN_AGE);
+//
+//        // Check if the date of birth is on or before the date 16 years ago
+//        Calendar today = Calendar.getInstance();
+//        Calendar eventDate = Calendar.getInstance();
+//        eventDate.set(this.getYear(), this.getMonth(), this.getDay());
+//
+//        if(eventDate.before(isAtLeast16YearsOld()) || (eventDate.equals(isAtLeast16YearsOld()))) {
+//            return true;
+//        }
+//
+//        return false;
+//    }
 
     /**
      * Checks age is valid for College Checking account
      * @return true if age between range and false if not
      */
-    boolean isAbove24() {
-        // Calculate today's date
-        Calendar currentDate = Calendar.getInstance();
+//    boolean isAbove24() {
+//        // Calculate today's date
+//        Calendar currentDate = Calendar.getInstance();
+//
+//        // Calculate a date 24 years ago from today (upper bound)
+//        Calendar twentyFourYearsAgo = Calendar.getInstance();
+//        twentyFourYearsAgo.add(Calendar.YEAR, -MAX_AGE);
+//
+//        // Calculate a date of birth
+//        Calendar birthDate = Calendar.getInstance();
+//        birthDate.set(this.getYear(), this.getMonth() - 1, this.getDay()); // Adjust month to be 0-based
+//
+//        // Check if the date of birth is after 24 years ago
+//        return birthDate.after(twentyFourYearsAgo);
+//    }
 
-        // Calculate a date 24 years ago from today (upper bound)
-        Calendar twentyFourYearsAgo = Calendar.getInstance();
-        twentyFourYearsAgo.add(Calendar.YEAR, -MAX_AGE);
 
-        // Calculate a date of birth
-        Calendar birthDate = Calendar.getInstance();
-        birthDate.set(this.getYear(), this.getMonth() - 1, this.getDay()); // Adjust month to be 0-based
+    public int getAge(){
+        Calendar birthDateCalendar = Calendar.getInstance();
+        birthDateCalendar.set(this.getYear(), this.getMonth() - 1, this.getDay());
+        Calendar today = Calendar.getInstance();
+        int age = today.get(Calendar.YEAR) - birthDateCalendar.get(Calendar.YEAR);
 
-        // Check if the date of birth is after 24 years ago
-        return birthDate.after(twentyFourYearsAgo);
+        if (today.get(Calendar.MONTH) < birthDateCalendar.get(Calendar.MONTH) ||
+                (today.get(Calendar.MONTH) == birthDateCalendar.get(Calendar.MONTH) &&
+                        today.get(Calendar.DAY_OF_MONTH) < birthDateCalendar.get(Calendar.DAY_OF_MONTH))) {
+            age--;
+        }
+        return age;
     }
-
-
 
 
 
@@ -216,27 +221,36 @@ public class Date implements Comparable<Date> {
      */
     @Override
     public int compareTo(Date date) {
-        if (this.year != date.year) {
-            return Integer.compare(this.year, date.year);
+        if(this.equals(date)) {
+            return NODAYSLEFTOVER;
+        }else {
+
+            if (this.year != date.year) {
+                return Integer.compare(this.year, date.year);
+            }
+            if (this.month != date.month) {
+                return Integer.compare(this.month, date.month);
+            }
+            return Integer.compare(this.day, date.day);
         }
-        if (this.month != date.month) {
-            return Integer.compare(this.month, date.month);
-        }
-        return Integer.compare(this.day, date.day);
     }
 
-    /**
-     * Check if object equal to date instance
-     * @param obj created  object to compare instance of date object
-     * @return true if Leap Year and false is not
-     */
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(day, month, year);
+    }
+
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Date) {
-            Date date = (Date) obj;
-            return this.year == date.year && this.month == date.month && this.day == date.day;
-        }
-        return false;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Date other = (Date) obj;
+        return day == other.day && month == other.month && year == other.year;
     }
     @Override
     public String toString() {
