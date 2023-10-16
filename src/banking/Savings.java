@@ -1,5 +1,9 @@
 package banking;
 
+/**
+ * Creates Savinds class to extend Account with specifications
+ * @author Ishani Mhatre
+ */
 public class Savings extends Account{
     protected boolean isLoyal; //loyal customer status
     private static final double INTEREST_RATE = 4.0;
