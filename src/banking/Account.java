@@ -17,6 +17,11 @@ public abstract class Account implements Comparable<Account> {
 
     }
 
+    public Profile getProfile() {
+        return holder;
+    }
+
+
     public abstract double monthlyInterest();
 
     public abstract double monthlyFee();
@@ -49,7 +54,10 @@ public abstract class Account implements Comparable<Account> {
 
     @Override
     public abstract String toString();
+
 }
+
+
 
 
 
